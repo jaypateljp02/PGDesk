@@ -67,8 +67,22 @@
    npm run dev
    ```
 
-## 📸 Screenshots & Demo
-Detailed screenshots and walkthroughs can be found in the `walkthrough.md`.
+## 🚀 Deployment
 
----
-*Created with ❤️ for professional PG Owners.*
+### Frontend (Vercel)
+When deploying to Vercel, use these settings:
+- **Root Directory**: `frontend`
+- **Framework Preset**: `Vite`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Environment Variables**: Add `VITE_API_URL` pointing to your hosted backend.
+
+> [!TIP]
+> I have added a `vercel.json` file in the `frontend` directory to handle SPA routing (this prevents 404 errors on page refresh).
+
+### Backend (Render/Railway/Heroku)
+- **Root Directory**: `backend`
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+- **Environment Variables**: `PORT`, `MONGODB_URI`, `JWT_SECRET`, `WHATSAPP_SESSION_ID`.
+
