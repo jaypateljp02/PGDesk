@@ -20,7 +20,8 @@ const getClientState = (userId) => {
             client: null,
             qr: null,
             isReady: false,
-            isInitializing: false
+            isInitializing: false,
+            lastError: null
         });
     }
     return clients.get(userId);
@@ -99,6 +100,7 @@ const initializeClient = async (userId) => {
 
     } catch (error) {
         state.isInitializing = false;
+        state.lastError = error.message;
         console.error(`WhatsApp init error for user ${userId}:`, error);
         throw error;
     }
@@ -133,7 +135,8 @@ router.get('/status', auth, (req, res) => {
         isReady: state.isReady,
         isInitializing: state.isInitializing,
         hasQRCode: !!state.qr,
-        qrCode: state.qr
+        qrCode: state.qr,
+        lastError: state.lastError
     });
 });
 

@@ -455,6 +455,12 @@ const WhatsAppConnection = ({ t }) => {
                     </button>
                 </div>
             )}
+
+            {status.lastError && (
+                <div className="mt-4 p-3 bg-red-50 text-red-600 text-[10px] sm:text-xs rounded-xl border border-red-100 break-words font-mono">
+                    <span className="font-bold">SYSTEM ERROR:</span> {status.lastError}
+                </div>
+            )}
         </div>
     );
 };
