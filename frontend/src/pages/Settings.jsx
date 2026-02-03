@@ -46,7 +46,7 @@ const Settings = () => {
 
     return (
         <div className="page">
-            <Header title={t('settings')} gradient={false} />
+            <Header title={t('settings')} />
 
             <main className="page-content animate-fade-in">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">

@@ -126,8 +126,8 @@ const Login = () => {
                 <div className="w-full max-w-md mx-auto">
                     {/* Header */}
                     <div className="text-center mb-8">
-                        <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-200">
-                            <Shield className="w-10 h-10 text-white" />
+                        <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-100 overflow-hidden border border-orange-100">
+                            <img src="/logo.png" alt="PGDesk" className="w-16 h-16 object-contain" />
                         </div>
                         <h1 className="text-2xl font-bold text-gray-800">Reset Password</h1>
                         <p className="text-gray-500 mt-1">Recover your account securely</p>
@@ -233,8 +233,8 @@ const Login = () => {
             <div className="w-full max-w-md mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-orange-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-orange-200 transform hover:scale-105 transition-transform">
-                        <span className="text-5xl">🏠</span>
+                    <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-orange-200 transform hover:scale-105 transition-transform overflow-hidden border-2 border-orange-100">
+                        <img src="/logo.png" alt="PGDesk" className="w-20 h-20 object-contain" />
                     </div>
                     <h1 className="text-3xl font-bold text-gray-800">
                         {isLogin ? 'Welcome Back!' : 'Create Account'}

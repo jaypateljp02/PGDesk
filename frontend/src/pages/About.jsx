@@ -25,8 +25,8 @@ const About = () => {
             <div className="page-content animate-fade-in">
                 {/* App Info Card */}
                 <div className="bg-white rounded-2xl shadow-sm p-6 text-center mb-6">
-                    <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-orange-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <span className="text-5xl">🏠</span>
+                    <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg border border-orange-100 overflow-hidden text-center">
+                        <img src="/logo.png" alt="PGDesk" className="w-20 h-20 object-contain mx-auto" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-1">PGDesk</h2>
                     <p className="text-gray-500 mb-4">PG Management Made Easy</p>

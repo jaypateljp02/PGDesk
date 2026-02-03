@@ -123,7 +123,7 @@ const AddResident = () => {
     if (loadingData) {
         return (
             <div className="page">
-                <Header title={t('newResident')} showBack gradient={false} />
+                <Header title={t('newResident')} showBack />
                 <div className="page-content flex items-center justify-center h-64">
                     <div className="animate-pulse text-gray-400">{t('loading')}</div>
                 </div>
@@ -133,7 +133,7 @@ const AddResident = () => {
 
     return (
         <div className="page">
-            <Header title={t('newResident')} showBack gradient={false} />
+            <Header title={t('newResident')} showBack />
 
             <form onSubmit={handleSubmit} className="page-content animate-fade-in">
                 <div className="card mb-4">

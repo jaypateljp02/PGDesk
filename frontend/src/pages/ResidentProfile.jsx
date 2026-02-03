@@ -64,7 +64,7 @@ const ResidentProfile = () => {
     if (loading) {
         return (
             <div className="page">
-                <Header title={t('loading')} showBack gradient={false} />
+                <Header title={t('loading')} showBack />
                 <div className="page-content flex items-center justify-center h-64">
                     <div className="animate-pulse text-gray-400">{t('loading')}</div>
                 </div>
@@ -75,7 +75,7 @@ const ResidentProfile = () => {
     if (!resident) {
         return (
             <div className="page">
-                <Header title={t('error')} showBack gradient={false} />
+                <Header title={t('error')} showBack />
                 <div className="page-content text-center py-12">
                     <p className="text-gray-500">{t('noResidentsFound')}</p>
                 </div>
@@ -88,11 +88,10 @@ const ResidentProfile = () => {
             <Header
                 title=""
                 showBack
-                gradient={false}
                 rightAction={
                     <button
                         onClick={() => setShowEditModal(true)}
-                        className="btn-icon btn-ghost text-gray-600"
+                        className="btn-icon btn-ghost text-white"
                     >
                         <Edit2 size={20} />
                     </button>
@@ -106,7 +105,9 @@ const ResidentProfile = () => {
                         {getInitials(resident.name)}
                     </div>
                     <h1 className="text-xl font-bold">{resident.name}</h1>
-                    <p className="text-gray-500">+९१ {n(resident.phone)}</p>
+                    <p className="text-gray-500 font-medium tracking-wide">
+                        <span className="text-orange-500">+91</span> {n(resident.phone)}
+                    </p>
                 </div>
 
                 {/* Location Info */}
@@ -118,7 +119,7 @@ const ResidentProfile = () => {
                         </div>
                         <div>
                             <div className="text-sm text-gray-500">{t('sectionName') || t('section')}</div>
-                            <div className="font-semibold">
+                            <div className="font-bold text-[var(--primary-start)] uppercase tracking-tight">
                                 {resident.section?.name && resident.section.name !== '_default'
                                     ? resident.section.name
                                     : '-'}
