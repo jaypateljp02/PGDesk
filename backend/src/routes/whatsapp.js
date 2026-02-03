@@ -38,7 +38,8 @@ const initializeClient = async (userId) => {
         state.isInitializing = true;
         state.qr = null; // Reset QR on new init
 
-        console.log(`Initializing WhatsApp for user: ${userId}`);
+        console.log(`[WhatsApp] [Init] Initializing for user: ${userId}`);
+        console.log(`[WhatsApp] [Init] Puppeteer Cache: ${path.join(process.cwd(), '.cache/puppeteer')}`);
 
         const client = new Client({
             authStrategy: new LocalAuth({
@@ -55,9 +56,11 @@ const initializeClient = async (userId) => {
                     '--no-first-run',
                     '--no-zygote',
                     '--single-process',
-                    '--disable-gpu'
+                    '--disable-gpu',
+                    '--window-size=1280,720'
                 ],
-                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
+                ignoreHTTPSErrors: true
             }
         });
 
