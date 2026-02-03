@@ -274,8 +274,8 @@ const EditPGModal = ({ user, onClose, updateSettings, t }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-start justify-center pt-16 pb-4 px-4 overflow-y-auto">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up my-auto">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">{t('edit')} {t('pgDetails')}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">

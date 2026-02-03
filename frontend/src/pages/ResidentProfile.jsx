@@ -206,8 +206,8 @@ const ResidentProfile = () => {
 
             {/* Vacate Confirmation Modal */}
             {showVacateModal && (
-                <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl p-6 max-w-sm w-full animate-fade-in">
+                <div className="fixed inset-0 bg-black/50 z-[100] flex items-start justify-center pt-16 pb-4 px-4 overflow-y-auto">
+                    <div className="bg-white rounded-2xl p-6 max-w-sm w-full animate-fade-in my-auto">
                         <h2 className="text-xl font-bold mb-2">{t('vacateConfirm')}</h2>
                         <p className="text-gray-600 mb-6">
                             {t('vacateWarning')} <strong>{resident.name}</strong>?
@@ -286,8 +286,8 @@ const EditResidentModal = ({ resident, onClose, onSuccess }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-            <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl p-6 animate-slide-up max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-start justify-center pt-16 pb-4 px-4 overflow-y-auto">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up my-auto">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">{t('editResident')}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">

@@ -151,8 +151,8 @@ const AddRoomModal = ({ onClose, onSuccess, t }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-start justify-center pt-16 pb-4 px-4 overflow-y-auto">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up my-auto">
                 <h2 className="text-xl font-bold mb-4">{t('addRoom')}</h2>
 
                 {step === 1 && (

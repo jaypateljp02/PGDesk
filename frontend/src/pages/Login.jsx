@@ -120,7 +120,7 @@ const Login = () => {
     // Forgot Password Form
     if (isForgotPassword) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 flex flex-col justify-center py-8 px-4">
+            <div className="min-h-[100dvh] bg-gradient-to-br from-orange-50 via-white to-purple-50 flex flex-col py-8 px-4 overflow-y-auto">
                 <div className="w-full max-w-md mx-auto">
                     {/* Header */}
                     <div className="text-center mb-8">
@@ -135,8 +135,8 @@ const Login = () => {
                     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8">
                         {msg.content && (
                             <div className={`px-4 py-3 rounded-xl text-sm font-medium mb-6 ${msg.type === 'error'
-                                    ? 'bg-red-50 text-red-600 border border-red-100'
-                                    : 'bg-green-50 text-green-600 border border-green-100'
+                                ? 'bg-red-50 text-red-600 border border-red-100'
+                                : 'bg-green-50 text-green-600 border border-green-100'
                                 }`}>
                                 {msg.content}
                             </div>
@@ -225,7 +225,7 @@ const Login = () => {
 
     // Login/Register Form
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 flex flex-col justify-center py-8 px-4">
+        <div className="min-h-[100dvh] bg-gradient-to-br from-orange-50 via-white to-purple-50 flex flex-col py-8 px-4 overflow-y-auto">
             <div className="w-full max-w-md mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -246,8 +246,8 @@ const Login = () => {
                         type="button"
                         onClick={() => setIsLogin(true)}
                         className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${isLogin
-                                ? 'bg-white text-gray-800 shadow-md'
-                                : 'text-gray-500 hover:text-gray-700'
+                            ? 'bg-white text-gray-800 shadow-md'
+                            : 'text-gray-500 hover:text-gray-700'
                             }`}
                     >
                         Sign In
@@ -256,8 +256,8 @@ const Login = () => {
                         type="button"
                         onClick={() => setIsLogin(false)}
                         className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${!isLogin
-                                ? 'bg-white text-gray-800 shadow-md'
-                                : 'text-gray-500 hover:text-gray-700'
+                            ? 'bg-white text-gray-800 shadow-md'
+                            : 'text-gray-500 hover:text-gray-700'
                             }`}
                     >
                         Sign Up
