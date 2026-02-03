@@ -29,20 +29,34 @@ app.use('/api/whatsapp', whatsappRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
+    res.json({ status: 'ok', message: 'Server is running', environment: process.env.VERCEL ? 'vercel' : 'local' });
 });
 
-// Connect to MongoDB and start server
-const PORT = process.env.PORT || 5000;
-
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => {
+// MongoDB Connection Helper for Serverless
+const connectDB = async () => {
+    if (mongoose.connection.readyState >= 1) return;
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
         console.log('✅ Connected to MongoDB Atlas');
+    } catch (error) {
+        console.error('❌ MongoDB connection error:', error.message);
+    }
+};
+
+// Start server for local development
+if (!process.env.VERCEL) {
+    const PORT = process.env.PORT || 5000;
+    connectDB().then(() => {
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
         });
-    })
-    .catch((error) => {
-        console.error('❌ MongoDB connection error:', error.message);
-        process.exit(1);
     });
+}
+
+// Middleware to ensure DB connection for every Vercel request
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
+
+module.exports = app;
