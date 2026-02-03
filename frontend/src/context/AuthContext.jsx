@@ -63,7 +63,8 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             setError(null);
-            const response = await api.post('/auth/login', { email, password });
+            const lowerEmail = email.toLowerCase();
+            const response = await api.post('/auth/login', { email: lowerEmail, password });
             localStorage.setItem('token', response.data.token);
             setUser(response.data.pg);
             return true;
@@ -76,7 +77,8 @@ export const AuthProvider = ({ children }) => {
     const register = async (data) => {
         try {
             setError(null);
-            const response = await api.post('/auth/register', data);
+            const payload = { ...data, email: data.email.toLowerCase() };
+            const response = await api.post('/auth/register', payload);
             localStorage.setItem('token', response.data.token);
             setUser(response.data.pg);
             return true;

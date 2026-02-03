@@ -65,10 +65,10 @@ const Login = () => {
         if (isForgotPassword) {
             await handleForgotPassword();
         } else if (isLogin) {
-            await login(formData.email, formData.password);
+            await login(formData.email.toLowerCase(), formData.password);
         } else {
             const success = await register({
-                email: formData.email,
+                email: formData.email.toLowerCase(),
                 password: formData.password,
                 name: formData.name,
                 ownerName: formData.ownerName,
@@ -88,14 +88,14 @@ const Login = () => {
         try {
             if (resetStep === 1) {
                 // Fetch Security Question
-                const res = await api.post('/auth/security-question', { email: formData.email });
+                const res = await api.post('/auth/security-question', { email: formData.email.toLowerCase() });
                 setFetchedQuestion(res.data.question);
                 setResetStep(2);
                 setMsg({ type: '', content: '' });
             } else {
                 // Reset Password
                 await api.post('/auth/reset-password', {
-                    email: formData.email,
+                    email: formData.email.toLowerCase(),
                     securityAnswer: formData.securityAnswer,
                     newPassword: formData.newPassword
                 });
@@ -143,6 +143,7 @@ const Login = () => {
                                         onChange={handleChange}
                                         className="input"
                                         placeholder="you@example.com"
+                                        autoCapitalize="none"
                                         required
                                     />
                                 </div>
@@ -313,6 +314,7 @@ const Login = () => {
                                 onChange={handleChange}
                                 className="input"
                                 placeholder="you@example.com"
+                                autoCapitalize="none"
                                 required
                             />
                         </div>
