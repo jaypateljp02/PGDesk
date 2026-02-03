@@ -49,9 +49,9 @@ const initializeClient = async (userId) => {
                 clientId: userId,
                 dataPath: SESSION_DIR
             }),
-            authTimeoutMs: 120000, // Increase to 2 minutes for slow cloud servers
+            authTimeoutMs: 120000,
             puppeteer: {
-                headless: true,
+                headless: true, // Standard headless for Linux
                 handleSIGINT: false,
                 args: [
                     '--no-sandbox',
@@ -90,7 +90,6 @@ const initializeClient = async (userId) => {
             }
             const secondsSinceActivity = Math.floor((Date.now() - lastActivity) / 1000);
             if (secondsSinceActivity > 10) {
-                // Prepend timer to stage instead of overwriting
                 if (!state.stage.includes('(Waiting:')) {
                     state.stage = `${state.stage} (Waiting: ${secondsSinceActivity}s)`;
                 } else {
@@ -98,6 +97,26 @@ const initializeClient = async (userId) => {
                 }
             }
         }, 5000);
+
+        // RAM SAVER: Disable images/css once browser starts
+        client.on('browser_launched', async (browser) => {
+            try {
+                const pages = await browser.pages();
+                const page = pages[0];
+                await page.setRequestInterception(true);
+                page.on('request', (req) => {
+                    const resourceType = req.resourceType();
+                    if (['image', 'stylesheet', 'font', 'media'].includes(resourceType)) {
+                        req.abort();
+                    } else {
+                        req.continue();
+                    }
+                });
+                console.log(`[WhatsApp] [RAM] Image/CSS blocking active for ${userId}`);
+            } catch (err) {
+                console.error(`[WhatsApp] [RAM] Failed to set interception:`, err.message);
+            }
+        });
 
         client.on('qr', (qr) => {
             lastActivity = Date.now();
@@ -159,7 +178,6 @@ const initializeClient = async (userId) => {
 
 // Check if session exists for user (Lazy Restore Check)
 const sessionExists = (userId) => {
-    // LocalAuth creates a folder like .wwebjs_auth/session-userId
     const userSessionPath = path.join(SESSION_DIR, `session-${userId}`);
     return fs.existsSync(userSessionPath);
 };
@@ -168,6 +186,21 @@ const sessionExists = (userId) => {
 router.post('/init', auth, async (req, res) => {
     try {
         const userId = req.pgId.toString();
+        const state = getClientState(userId);
+
+        // FORCE RESET: If we were already initializing or error, clean up first
+        if (req.query.reset === 'true') {
+            try {
+                if (state.client) await state.client.destroy();
+            } catch (e) { }
+            clients.delete(userId);
+            const userSessionPath = path.join(SESSION_DIR, `session-${userId}`);
+            if (fs.existsSync(userSessionPath)) {
+                fs.rmSync(userSessionPath, { recursive: true, force: true });
+                console.log(`[WhatsApp] [Reset] Cleaned session for user: ${userId}`);
+            }
+        }
+
         const result = await initializeClient(userId);
         res.json({
             status: result.status,

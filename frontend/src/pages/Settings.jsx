@@ -362,11 +362,14 @@ const WhatsAppConnection = ({ t }) => {
         return () => clearInterval(interval);
     }, []);
 
-    const handleConnect = async () => {
+    const handleConnect = async (forceReset = false) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/whatsapp/init`, {
+            const url = new URL(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/whatsapp/init`);
+            if (forceReset) url.searchParams.append('reset', 'true');
+
+            await fetch(url.toString(), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -383,6 +386,7 @@ const WhatsAppConnection = ({ t }) => {
     };
 
     const handleDisconnect = async () => {
+        if (!window.confirm('Are you sure you want to disconnect WhatsApp? You will need to scan QR again.')) return;
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
@@ -403,9 +407,18 @@ const WhatsAppConnection = ({ t }) => {
 
     return (
         <div className="card">
-            <div className="flex items-center gap-3 mb-4">
-                <Smartphone size={20} className="text-green-500" />
-                <h3 className="font-semibold text-gray-500 text-sm">{t('whatsappConnection').toUpperCase()}</h3>
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                    <Smartphone size={20} className="text-green-500" />
+                    <h3 className="font-semibold text-gray-500 text-sm">{t('whatsappConnection').toUpperCase()}</h3>
+                </div>
+                <button
+                    onClick={() => handleConnect(true)}
+                    className="text-[10px] text-gray-400 font-medium hover:text-red-500 transition-colors uppercase"
+                    title="Force clean startup if connection hangs"
+                >
+                    🔄 Reset
+                </button>
             </div>
 
             {status.isReady ? (
@@ -435,6 +448,14 @@ const WhatsAppConnection = ({ t }) => {
                             className="w-48 h-48"
                         />
                     </div>
+                    <div className="text-center">
+                        {status.stage && (
+                            <span className="text-[10px] text-yellow-600 font-mono uppercase tracking-tight">
+                                Stage: {status.stage}
+                            </span>
+                        )}
+                        <p className="text-[9px] text-gray-400 mt-1 uppercase">Click "Reset" if QR scan doesn't work after 30s</p>
+                    </div>
                 </div>
             ) : status.isInitializing ? (
                 <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-xl">
@@ -451,12 +472,12 @@ const WhatsAppConnection = ({ t }) => {
             ) : (
                 <div className="space-y-3">
                     <p className="text-sm text-gray-500">
-                        {t('connect')} WhatsApp
+                        {t('connect')} WhatsApp to send automated rent reminders.
                     </p>
                     <button
-                        onClick={handleConnect}
+                        onClick={() => handleConnect(false)}
                         disabled={loading}
-                        className="w-full py-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 transition-colors disabled:opacity-50"
+                        className="w-full py-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 shadow-sm transition-all active:scale-95 disabled:opacity-50"
                     >
                         {loading ? t('loading') : `🔗 ${t('connect')}`}
                     </button>
