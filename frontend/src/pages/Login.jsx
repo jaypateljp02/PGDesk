@@ -11,6 +11,29 @@ const SECURITY_QUESTIONS = [
     "In which city were you born?"
 ];
 
+// Input component with icon - MUST be outside Login to prevent re-render on typing
+const InputField = ({ icon: Icon, type = "text", showPassword, onTogglePassword, ...props }) => (
+    <div className="relative">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <Icon size={18} />
+        </div>
+        <input
+            type={type === "password" && showPassword ? "text" : type}
+            {...props}
+            className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all text-gray-700 placeholder-gray-400"
+        />
+        {type === "password" && onTogglePassword && (
+            <button
+                type="button"
+                onClick={onTogglePassword}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+        )}
+    </div>
+);
+
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -40,6 +63,8 @@ const Login = () => {
             [e.target.name]: e.target.value
         });
     };
+
+    const togglePassword = () => setShowPassword(!showPassword);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -93,29 +118,6 @@ const Login = () => {
             setMsg({ type: 'error', content: err.response?.data?.message || 'Something went wrong' });
         }
     };
-
-    // Input component with icon
-    const InputField = ({ icon: Icon, type = "text", ...props }) => (
-        <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <Icon size={18} />
-            </div>
-            <input
-                type={type === "password" && showPassword ? "text" : type}
-                {...props}
-                className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all text-gray-700 placeholder-gray-400"
-            />
-            {type === "password" && (
-                <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-            )}
-        </div>
-    );
 
     // Forgot Password Form
     if (isForgotPassword) {
@@ -182,6 +184,8 @@ const Login = () => {
                                             value={formData.newPassword}
                                             onChange={handleChange}
                                             placeholder="Create new password"
+                                            showPassword={showPassword}
+                                            onTogglePassword={togglePassword}
                                             required
                                             minLength={6}
                                         />
@@ -369,6 +373,8 @@ const Login = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 placeholder="••••••••"
+                                showPassword={showPassword}
+                                onTogglePassword={togglePassword}
                                 required
                                 minLength={6}
                             />
