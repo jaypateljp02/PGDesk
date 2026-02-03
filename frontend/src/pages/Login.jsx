@@ -225,8 +225,17 @@ const Login = () => {
             <div className="flex-1 -mt-8 px-4">
                 <div className="card max-w-md mx-auto animate-fade-in">
                     {error && (
-                        <div className="bg-[var(--error-light)] text-[var(--error)] px-4 py-3 rounded-xl mb-4 text-sm font-medium">
-                            {error}
+                        <div className="space-y-2 mb-4">
+                            <div className="bg-[var(--error-light)] text-[var(--error)] px-4 py-3 rounded-xl text-sm font-medium">
+                                {error}
+                            </div>
+                            {error.toLowerCase().includes('network error') && (
+                                <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 text-[10px] text-gray-400 break-all font-mono">
+                                    <p className="font-bold uppercase mb-1">Diagnostic Info:</p>
+                                    <p>API URL: {import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}</p>
+                                    <p>Please ensure VITE_API_URL is set in Vercel settings.</p>
+                                </div>
+                            )}
                         </div>
                     )}
 
