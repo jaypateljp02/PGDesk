@@ -439,7 +439,14 @@ const WhatsAppConnection = ({ t }) => {
             ) : status.isInitializing ? (
                 <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-xl">
                     <div className="animate-spin w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
-                    <span className="text-yellow-700">{t('loading')}</span>
+                    <div className="flex flex-col">
+                        <span className="text-yellow-700">{t('loading')}</span>
+                        {status.stage && (
+                            <span className="text-[10px] text-yellow-600 font-mono uppercase tracking-tight">
+                                {status.stage}
+                            </span>
+                        )}
+                    </div>
                 </div>
             ) : (
                 <div className="space-y-3">

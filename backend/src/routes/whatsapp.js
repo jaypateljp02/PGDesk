@@ -11,7 +11,8 @@ const router = express.Router();
 // Store active clients: userId -> { client, qr, isReady, isInitializing }
 const clients = new Map();
 
-const SESSION_DIR = './.wwebjs_auth';
+const SESSION_DIR = path.resolve(process.cwd(), '.wwebjs_auth');
+const CACHE_DIR = path.resolve(process.cwd(), '.cache/puppeteer');
 
 // Helper to get or create client state
 const getClientState = (userId) => {
@@ -21,7 +22,9 @@ const getClientState = (userId) => {
             qr: null,
             isReady: false,
             isInitializing: false,
-            lastError: null
+            lastError: null,
+            stage: 'idle',
+            qr: null
         });
     }
     return clients.get(userId);
@@ -68,6 +71,7 @@ const initializeClient = async (userId) => {
 
         client.on('qr', (qr) => {
             state.qr = qr;
+            state.stage = 'QR Code Ready - Please Scan';
             console.log(`[WhatsApp] [QR] Generated for user: ${userId}`);
         });
 
@@ -76,9 +80,11 @@ const initializeClient = async (userId) => {
             state.isReady = true;
             state.isInitializing = false;
             state.qr = null;
+            state.stage = 'Connected';
         });
 
         client.on('authenticated', () => {
+            state.stage = 'Authenticated - Starting Session';
             console.log(`WhatsApp authenticated for user ${userId}`);
         });
 
@@ -87,23 +93,17 @@ const initializeClient = async (userId) => {
             state.isInitializing = false;
             state.isReady = false;
             state.qr = null;
+            state.lastError = `Auth Failure: ${msg}`;
         });
 
-        client.on('disconnected', (reason) => {
-            console.log(`WhatsApp disconnected for user ${userId}:`, reason);
-            state.isReady = false;
-            state.isInitializing = false;
-            state.client = null;
-            state.qr = null;
-            clients.delete(userId); // Clean up client state from map
-        });
-
+        state.stage = 'Launching Browser... (Wait 20s)';
         await client.initialize();
         return { status: 'initializing' };
 
     } catch (error) {
         state.isInitializing = false;
         state.lastError = error.message;
+        state.stage = 'Error';
         console.error(`WhatsApp init error for user ${userId}:`, error);
         throw error;
     }
@@ -139,7 +139,8 @@ router.get('/status', auth, (req, res) => {
         isInitializing: state.isInitializing,
         hasQRCode: !!state.qr,
         qrCode: state.qr,
-        lastError: state.lastError
+        lastError: state.lastError,
+        stage: state.stage
     });
 });
 
