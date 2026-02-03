@@ -49,8 +49,10 @@ const initializeClient = async (userId) => {
                 clientId: userId,
                 dataPath: SESSION_DIR
             }),
+            authTimeoutMs: 120000, // Increase to 2 minutes for slow cloud servers
             puppeteer: {
                 headless: true,
+                handleSIGINT: false,
                 args: [
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
@@ -60,7 +62,19 @@ const initializeClient = async (userId) => {
                     '--no-zygote',
                     '--single-process',
                     '--disable-gpu',
-                    '--window-size=1280,720'
+                    '--window-size=1280,720',
+                    '--disable-extensions',
+                    '--disable-default-apps',
+                    '--mute-audio',
+                    '--no-default-browser-check',
+                    '--disable-site-isolation-trials',
+                    '--no-experiments',
+                    '--ignore-gpu-blacklist',
+                    '--ignore-certificate-errors',
+                    '--ignore-certificate-errors-spki-list',
+                    '--disable-extensions',
+                    '--proxy-server="direct://"',
+                    '--proxy-bypass-list=*'
                 ],
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
                 ignoreHTTPSErrors: true
@@ -75,16 +89,22 @@ const initializeClient = async (userId) => {
             console.log(`[WhatsApp] [QR] Generated for user: ${userId}`);
         });
 
+        client.on('loading_screen', (percent, message) => {
+            state.stage = `Syncing: ${percent}%...`;
+            console.log(`[WhatsApp] [Loading] ${percent}% - ${message} for ${userId}`);
+        });
+
         client.on('ready', () => {
             console.log(`WhatsApp client ready for user ${userId}`);
             state.isReady = true;
             state.isInitializing = false;
             state.qr = null;
             state.stage = 'Connected';
+            state.lastError = null;
         });
 
         client.on('authenticated', () => {
-            state.stage = 'Authenticated - Starting Session';
+            state.stage = 'Scan Successful! Building Session...';
             console.log(`WhatsApp authenticated for user ${userId}`);
         });
 
@@ -94,9 +114,10 @@ const initializeClient = async (userId) => {
             state.isReady = false;
             state.qr = null;
             state.lastError = `Auth Failure: ${msg}`;
+            state.stage = 'Auth Failed';
         });
 
-        state.stage = 'Launching Browser... (Wait 20s)';
+        state.stage = 'Starting Browser Engine...';
         await client.initialize();
         return { status: 'initializing' };
 
