@@ -16,6 +16,9 @@ const whatsappRoutes = require('./src/routes/whatsapp');
 
 const app = express();
 
+// Trust proxy for rate limiter (required for Render/Vercel)
+app.set('trust proxy', 1);
+
 // ======================
 // SECURITY MIDDLEWARE
 // ======================
