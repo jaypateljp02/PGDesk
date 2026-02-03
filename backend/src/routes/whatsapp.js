@@ -60,7 +60,6 @@ const initializeClient = async (userId) => {
                     '--disable-accelerated-2d-canvas',
                     '--no-first-run',
                     '--no-zygote',
-                    '--single-process',
                     '--disable-gpu',
                     '--window-size=1280,720',
                     '--disable-extensions',
@@ -72,7 +71,6 @@ const initializeClient = async (userId) => {
                     '--ignore-gpu-blacklist',
                     '--ignore-certificate-errors',
                     '--ignore-certificate-errors-spki-list',
-                    '--disable-extensions',
                     '--proxy-server="direct://"',
                     '--proxy-bypass-list=*'
                 ],
@@ -83,18 +81,34 @@ const initializeClient = async (userId) => {
 
         state.client = client;
 
+        // Heartbeat to keep track of connection progress
+        let lastActivity = Date.now();
+        const heartbeat = setInterval(() => {
+            if (state.isReady || !state.isInitializing) {
+                clearInterval(heartbeat);
+                return;
+            }
+            const secondsSinceActivity = Math.floor((Date.now() - lastActivity) / 1000);
+            if (secondsSinceActivity > 5) {
+                state.stage = `Connecting... (${secondsSinceActivity}s)`;
+            }
+        }, 3000);
+
         client.on('qr', (qr) => {
+            lastActivity = Date.now();
             state.qr = qr;
             state.stage = 'QR Code Ready - Please Scan';
             console.log(`[WhatsApp] [QR] Generated for user: ${userId}`);
         });
 
         client.on('loading_screen', (percent, message) => {
+            lastActivity = Date.now();
             state.stage = `Syncing: ${percent}%...`;
             console.log(`[WhatsApp] [Loading] ${percent}% - ${message} for ${userId}`);
         });
 
         client.on('ready', () => {
+            clearInterval(heartbeat);
             console.log(`WhatsApp client ready for user ${userId}`);
             state.isReady = true;
             state.isInitializing = false;
@@ -104,11 +118,13 @@ const initializeClient = async (userId) => {
         });
 
         client.on('authenticated', () => {
+            lastActivity = Date.now();
             state.stage = 'Scan Successful! Building Session...';
             console.log(`WhatsApp authenticated for user ${userId}`);
         });
 
         client.on('auth_failure', (msg) => {
+            clearInterval(heartbeat);
             console.error(`WhatsApp auth failure for user ${userId}:`, msg);
             state.isInitializing = false;
             state.isReady = false;
