@@ -81,7 +81,7 @@ const initializeClient = async (userId) => {
 
         state.client = client;
 
-        // Heartbeat to keep track of connection progress
+        // Heartbeat to keep track of connection progress without overwriting STAGE
         let lastActivity = Date.now();
         const heartbeat = setInterval(() => {
             if (state.isReady || !state.isInitializing) {
@@ -89,10 +89,15 @@ const initializeClient = async (userId) => {
                 return;
             }
             const secondsSinceActivity = Math.floor((Date.now() - lastActivity) / 1000);
-            if (secondsSinceActivity > 5) {
-                state.stage = `Connecting... (${secondsSinceActivity}s)`;
+            if (secondsSinceActivity > 10) {
+                // Prepend timer to stage instead of overwriting
+                if (!state.stage.includes('(Waiting:')) {
+                    state.stage = `${state.stage} (Waiting: ${secondsSinceActivity}s)`;
+                } else {
+                    state.stage = state.stage.replace(/\(Waiting: \d+s\)/, `(Waiting: ${secondsSinceActivity}s)`);
+                }
             }
-        }, 3000);
+        }, 5000);
 
         client.on('qr', (qr) => {
             lastActivity = Date.now();
@@ -103,8 +108,14 @@ const initializeClient = async (userId) => {
 
         client.on('loading_screen', (percent, message) => {
             lastActivity = Date.now();
-            state.stage = `Syncing: ${percent}%...`;
+            state.stage = `Syncing: ${percent}%`;
             console.log(`[WhatsApp] [Loading] ${percent}% - ${message} for ${userId}`);
+        });
+
+        client.on('change_state', (whatsappState) => {
+            lastActivity = Date.now();
+            console.log(`[WhatsApp] [State] ${whatsappState} for user ${userId}`);
+            if (!state.isReady) state.stage = `State: ${whatsappState}`;
         });
 
         client.on('ready', () => {
@@ -119,7 +130,7 @@ const initializeClient = async (userId) => {
 
         client.on('authenticated', () => {
             lastActivity = Date.now();
-            state.stage = 'Scan Successful! Building Session...';
+            state.stage = 'Scan Successful! Please wait...';
             console.log(`WhatsApp authenticated for user ${userId}`);
         });
 
@@ -133,7 +144,7 @@ const initializeClient = async (userId) => {
             state.stage = 'Auth Failed';
         });
 
-        state.stage = 'Starting Browser Engine...';
+        state.stage = 'Engine Startup...';
         await client.initialize();
         return { status: 'initializing' };
 
