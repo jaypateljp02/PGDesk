@@ -36,13 +36,28 @@ router.get('/', auth, async (req, res) => {
         const currentMonth = new Date().getMonth() + 1;
         const currentYear = new Date().getFullYear();
 
+        // Optimize: Bulk fetch rent info
         const residentsWithRent = await Promise.all(residents.map(async (resident) => {
-            const rentPayment = await RentPayment.findOne({
-                residentId: resident._id,
-                month: currentMonth,
-                year: currentYear
-            });
+            // This is still slightly inefficient but better than before. 
+            // For true 100% optimization we'd fetch all relevant payments in one go,
+            // but for now let's just ensure we index properly or use the optimization pattern from rent.js if this is still slow.
+            // Actually, let's do the same map optimization pattern here:
+            return resident;
+        }));
 
+        // Fetch all rent payments for these residents for the current month
+        const residentIds = residents.map(r => r._id);
+        const payments = await RentPayment.find({
+            residentId: { $in: residentIds },
+            month: currentMonth,
+            year: currentYear
+        });
+
+        const paymentMap = new Map();
+        payments.forEach(p => paymentMap.set(p.residentId.toString(), p));
+
+        const finalResidents = residents.map(resident => {
+            const rentPayment = paymentMap.get(resident._id.toString());
             return {
                 ...resident.toObject(),
                 currentRentStatus: rentPayment?.status || 'pending',
@@ -50,12 +65,12 @@ router.get('/', auth, async (req, res) => {
                 section: resident.bedId?.sectionId,
                 bed: resident.bedId
             };
-        }));
+        });
 
         // Filter by rent status if specified
-        let filteredResidents = residentsWithRent;
+        let filteredResidents = finalResidents;
         if (status && status !== 'all') {
-            filteredResidents = residentsWithRent.filter(r => r.currentRentStatus === status);
+            filteredResidents = finalResidents.filter(r => r.currentRentStatus === status);
         }
 
         res.json(filteredResidents);

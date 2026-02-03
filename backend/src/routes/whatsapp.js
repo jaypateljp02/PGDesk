@@ -236,4 +236,26 @@ router.post('/disconnect', auth, async (req, res) => {
     }
 });
 
+// Restore sessions on startup
+router.restoreSessions = async () => {
+    try {
+        if (!fs.existsSync(SESSION_DIR)) return;
+
+        const files = fs.readdirSync(SESSION_DIR);
+        const sessionFolders = files.filter(f => f.startsWith('session-'));
+
+        console.log(`Found ${sessionFolders.length} WhatsApp sessions to restore`);
+
+        for (const folder of sessionFolders) {
+            const userId = folder.replace('session-', '');
+            // Initialize but don't wait (async restoration)
+            initializeClient(userId).catch(err =>
+                console.error(`Failed to restore session for ${userId}:`, err.message)
+            );
+        }
+    } catch (error) {
+        console.error('Session restoration failed:', error);
+    }
+};
+
 module.exports = router;

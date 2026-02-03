@@ -1,14 +1,33 @@
 import { useState, useEffect } from 'react';
-import { LogOut, Globe, Calendar, UtensilsCrossed, Smartphone, Edit2, X, Save } from 'lucide-react';
+import { LogOut, Globe, Calendar, UtensilsCrossed, Smartphone, Edit2, X, Save, Download, RefreshCw } from 'lucide-react';
 import Header from '../components/layout/Header';
 import Button from '../components/ui/Button';
 import Toggle from '../components/ui/Toggle';
 import { useAuth } from '../context/AuthContext';
+import { rentAPI } from '../services/api';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 const Settings = () => {
     const { user, logout, updateSettings, t } = useAuth(); // Destructure t
     const [saving, setSaving] = useState(false);
     const [showEditPGModal, setShowEditPGModal] = useState(false);
+    const [autoRentLoading, setAutoRentLoading] = useState(false);
+    const { canInstall, isInstalled, promptInstall } = usePWAInstall();
+
+    // Auto create rent for current month
+    const handleAutoCreateRent = async () => {
+        setAutoRentLoading(true);
+        try {
+            const now = new Date();
+            const response = await rentAPI.autoCreate(now.getMonth() + 1, now.getFullYear());
+            alert(`✅ ${response.data.message}`);
+        } catch (error) {
+            console.error('Failed to auto-create rent:', error);
+            alert(t('error'));
+        } finally {
+            setAutoRentLoading(false);
+        }
+    };
 
     const handleSettingChange = async (key, value) => {
         setSaving(true);
@@ -143,6 +162,65 @@ const Settings = () => {
 
                     {/* WhatsApp Connection */}
                     <WhatsAppConnection t={t} />
+
+                    {/* Tools & Automation */}
+                    <div className="card">
+                        <h3 className="font-semibold text-gray-500 text-sm mb-4">TOOLS & AUTOMATION</h3>
+
+                        {/* Auto Create Rent */}
+                        <div className="py-4 border-b">
+                            <div className="flex items-center gap-3 mb-2">
+                                <RefreshCw size={20} className="text-blue-500" />
+                                <div className="flex-1">
+                                    <span className="font-medium">Auto Create Rent</span>
+                                    <p className="text-sm text-gray-500">Create rent records for all residents</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleAutoCreateRent}
+                                disabled={autoRentLoading}
+                                className="w-full py-2 mt-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors disabled:opacity-50"
+                            >
+                                {autoRentLoading ? 'Creating...' : '📅 Create This Month\'s Rent'}
+                            </button>
+                        </div>
+
+                        {/* PWA Install */}
+                        {!isInstalled && (
+                            <div className="py-4">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <Download size={20} className="text-purple-500" />
+                                    <div className="flex-1">
+                                        <span className="font-medium">Install App</span>
+                                        <p className="text-sm text-gray-500">Add PGDesk to your home screen</p>
+                                    </div>
+                                </div>
+                                {canInstall ? (
+                                    <button
+                                        onClick={promptInstall}
+                                        className="w-full py-2 mt-2 bg-purple-50 text-purple-600 rounded-lg font-medium hover:bg-purple-100 transition-colors"
+                                    >
+                                        📱 Install PGDesk App
+                                    </button>
+                                ) : (
+                                    <p className="text-sm text-gray-400 mt-2">
+                                        Open in mobile browser → Menu → "Add to Home Screen"
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {isInstalled && (
+                            <div className="py-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                        ✓
+                                    </div>
+                                    <span className="text-green-600 font-medium">App Installed!</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Logout */}
                     <div className="card lg:col-span-2">

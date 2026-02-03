@@ -1,21 +1,45 @@
 {
-    "name": "PGDesk",
+    "name": "PGDesk - PG Management",
     "short_name": "PGDesk",
-    "description": "Manage your PG occupancy, rent, and food with ease.",
+    "description": "Manage your PG occupancy, rent, food, and send WhatsApp reminders with ease. Available in Hindi & English.",
     "start_url": "/",
     "display": "standalone",
+    "orientation": "portrait-primary",
     "background_color": "#ffffff",
     "theme_color": "#ff6b00",
+    "scope": "/",
+    "id": "/",
+    "categories": [
+        "business",
+        "productivity",
+        "utilities"
+    ],
     "icons": [
         {
             "src": "/icon-192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
         },
         {
             "src": "/icon-512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
-    ]
+    ],
+    "screenshots": [],
+    "prefer_related_applications": false
 }

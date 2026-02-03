@@ -22,6 +22,16 @@ router.get('/', auth, async (req, res) => {
                 ]
             });
 
+        // Optimize: Fetch all rent payments for this month in one go
+        const existingPayments = await RentPayment.find({
+            pgId: req.pgId,
+            month: targetMonth,
+            year: targetYear
+        });
+
+        const paymentMap = new Map();
+        existingPayments.forEach(p => paymentMap.set(p.residentId.toString(), p));
+
         // Get or create rent payments for each resident
         const rentData = (await Promise.all(residents.map(async (resident) => {
             // Check if resident was active in target month
@@ -34,11 +44,7 @@ router.get('/', auth, async (req, res) => {
                 return null; // Don't show rent for this resident
             }
 
-            let rentPayment = await RentPayment.findOne({
-                residentId: resident._id,
-                month: targetMonth,
-                year: targetYear
-            });
+            let rentPayment = paymentMap.get(resident._id.toString());
 
             // Create rent payment if doesn't exist
             if (!rentPayment) {
@@ -235,6 +241,106 @@ router.put('/:id/confirm', auth, async (req, res) => {
 
         await rentPayment.save();
         res.json(rentPayment);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// AUTO-CREATE RENT for new month (call this on 1st of every month)
+router.post('/auto-create', auth, async (req, res) => {
+    try {
+        const { month, year } = req.body;
+        const targetMonth = parseInt(month) || new Date().getMonth() + 1;
+        const targetYear = parseInt(year) || new Date().getFullYear();
+
+        // Get all active residents
+        const residents = await Resident.find({ pgId: req.pgId, isActive: true });
+
+        let created = 0;
+        let skipped = 0;
+
+        for (const resident of residents) {
+            const joinDate = new Date(resident.joinDate);
+            const joinMonth = joinDate.getMonth() + 1;
+            const joinYear = joinDate.getFullYear();
+
+            // Skip if target month is before join date
+            if (targetYear < joinYear || (targetYear === joinYear && targetMonth < joinMonth)) {
+                skipped++;
+                continue;
+            }
+
+            // Check if rent already exists
+            const existingRent = await RentPayment.findOne({
+                residentId: resident._id,
+                pgId: req.pgId,
+                month: targetMonth,
+                year: targetYear
+            });
+
+            if (!existingRent) {
+                await RentPayment.create({
+                    residentId: resident._id,
+                    pgId: req.pgId,
+                    month: targetMonth,
+                    year: targetYear,
+                    amountDue: resident.rentAmount,
+                    amountPaid: 0,
+                    status: 'pending'
+                });
+                created++;
+            } else {
+                skipped++;
+            }
+        }
+
+        res.json({
+            success: true,
+            message: `Created ${created} rent record(s), skipped ${skipped}`,
+            month: targetMonth,
+            year: targetYear,
+            created,
+            skipped
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// Get rent summary for multiple months (for reports/analytics)
+router.get('/summary', auth, async (req, res) => {
+    try {
+        const currentYear = new Date().getFullYear();
+        const months = [];
+
+        // Get last 6 months summary
+        for (let i = 0; i < 6; i++) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+
+            const payments = await RentPayment.find({
+                pgId: req.pgId,
+                month,
+                year
+            });
+
+            const summary = {
+                month,
+                year,
+                monthName: date.toLocaleString('default', { month: 'short' }),
+                total: payments.length,
+                paid: payments.filter(p => p.status === 'paid').length,
+                pending: payments.filter(p => ['pending', 'overdue', 'partial'].includes(p.status)).length,
+                totalAmount: payments.reduce((sum, p) => sum + (p.amountDue || 0), 0),
+                collectedAmount: payments.reduce((sum, p) => sum + (p.amountPaid || 0), 0)
+            };
+
+            months.push(summary);
+        }
+
+        res.json({ months });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
