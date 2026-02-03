@@ -303,8 +303,8 @@ const AddBedModal = ({ roomId, hasSections, sections, preselectedSectionId, exis
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
-            <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl p-6 animate-slide-up">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up max-h-[85vh] overflow-y-auto">
                 <h2 className="text-xl font-bold mb-4">{t('addBed')}</h2>
 
                 {hasSections && sections.length > 0 && (
@@ -425,8 +425,8 @@ const EditBedModal = ({ bed, onClose, onSuccess }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
-            <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl p-6 animate-slide-up">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up max-h-[85vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">{t('editBed')}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
@@ -529,8 +529,8 @@ const AddSectionModal = ({ roomId, onClose, onSuccess }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
-            <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl p-6 animate-slide-up">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up max-h-[85vh] overflow-y-auto">
                 <h2 className="text-xl font-bold mb-4">{t('addSection')}</h2>
 
                 <div className="input-group mb-4">

@@ -163,36 +163,17 @@ const Settings = () => {
                     {/* WhatsApp Connection */}
                     <WhatsAppConnection t={t} />
 
-                    {/* Tools & Automation */}
+                    {/* Install App */}
                     <div className="card">
-                        <h3 className="font-semibold text-gray-500 text-sm mb-4">TOOLS & AUTOMATION</h3>
+                        <h3 className="font-semibold text-gray-500 text-sm mb-4">INSTALL APP</h3>
 
-                        {/* Auto Create Rent */}
-                        <div className="py-4 border-b">
-                            <div className="flex items-center gap-3 mb-2">
-                                <RefreshCw size={20} className="text-blue-500" />
-                                <div className="flex-1">
-                                    <span className="font-medium">Auto Create Rent</span>
-                                    <p className="text-sm text-gray-500">Create rent records for all residents</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleAutoCreateRent}
-                                disabled={autoRentLoading}
-                                className="w-full py-2 mt-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors disabled:opacity-50"
-                            >
-                                {autoRentLoading ? 'Creating...' : '📅 Create This Month\'s Rent'}
-                            </button>
-                        </div>
-
-                        {/* PWA Install */}
                         {!isInstalled && (
-                            <div className="py-4">
+                            <div className="py-2">
                                 <div className="flex items-center gap-3 mb-2">
                                     <Download size={20} className="text-purple-500" />
                                     <div className="flex-1">
-                                        <span className="font-medium">Install App</span>
-                                        <p className="text-sm text-gray-500">Add PGDesk to your home screen</p>
+                                        <span className="font-medium">Add to Home Screen</span>
+                                        <p className="text-sm text-gray-500">Install PGDesk for quick access</p>
                                     </div>
                                 </div>
                                 {canInstall ? (
@@ -211,7 +192,7 @@ const Settings = () => {
                         )}
 
                         {isInstalled && (
-                            <div className="py-4">
+                            <div className="py-2">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                                         ✓
@@ -293,8 +274,8 @@ const EditPGModal = ({ user, onClose, updateSettings, t }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
-            <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl p-6 animate-slide-up">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 animate-slide-up max-h-[85vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">{t('edit')} {t('pgDetails')}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">

@@ -206,7 +206,7 @@ const ResidentProfile = () => {
 
             {/* Vacate Confirmation Modal */}
             {showVacateModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl p-6 max-w-sm w-full animate-fade-in">
                         <h2 className="text-xl font-bold mb-2">{t('vacateConfirm')}</h2>
                         <p className="text-gray-600 mb-6">
@@ -286,7 +286,7 @@ const EditResidentModal = ({ resident, onClose, onSuccess }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
             <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl p-6 animate-slide-up max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">{t('editResident')}</h2>

@@ -16,6 +16,7 @@ import Rent from './pages/Rent';
 import Food from './pages/Food';
 import Settings from './pages/Settings';
 import More from './pages/More';
+import About from './pages/About';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -187,6 +188,17 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <More />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/about"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <About />
             </AppLayout>
           </ProtectedRoute>
         }

@@ -37,7 +37,7 @@ const More = () => {
 
     return (
         <div className="page">
-            <Header title="More" gradient={false} />
+            <Header title="More" />
 
             <div className="page-content animate-fade-in">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

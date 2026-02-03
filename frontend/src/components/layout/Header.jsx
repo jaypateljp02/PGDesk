@@ -23,12 +23,16 @@ const Header = ({
                             <ArrowLeft size={24} />
                         </button>
                     ) : (
-                        <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
-                            <img src="/icon-192.png" alt="PGDesk Logo" className="w-full h-full object-contain" />
+                        <div className="w-11 h-11 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                            <img
+                                src="/icon-192.png"
+                                alt="PGDesk"
+                                className="w-8 h-8 object-contain"
+                            />
                         </div>
                     )}
                     <div>
-                        <h1 className={`text-xl font-bold ${gradient ? 'text-white' : 'text-gray-900'}`}>
+                        <h1 className={`text-xl font-bold tracking-tight ${gradient ? 'text-white drop-shadow-sm' : 'text-gray-900'}`}>
                             {title}
                         </h1>
                         {subtitle && (

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { Eye, EyeOff, Mail, Lock, User, Phone, Building2, Shield, ArrowRight, ArrowLeft } from 'lucide-react';
 
 const SECURITY_QUESTIONS = [
     "What is the name of your first pet?",
@@ -13,9 +14,10 @@ const SECURITY_QUESTIONS = [
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     // Forgot Password State
-    const [resetStep, setResetStep] = useState(1); // 1: Email, 2: Answer & New Password
+    const [resetStep, setResetStep] = useState(1);
     const [fetchedQuestion, setFetchedQuestion] = useState('');
 
     const [formData, setFormData] = useState({
@@ -69,13 +71,11 @@ const Login = () => {
     const handleForgotPassword = async () => {
         try {
             if (resetStep === 1) {
-                // Fetch Security Question
                 const res = await api.post('/auth/security-question', { email: formData.email });
                 setFetchedQuestion(res.data.question);
                 setResetStep(2);
                 setMsg({ type: '', content: '' });
             } else {
-                // Reset Password
                 await api.post('/auth/reset-password', {
                     email: formData.email,
                     securityAnswer: formData.securityAnswer,
@@ -94,67 +94,94 @@ const Login = () => {
         }
     };
 
-    // Render Forgot Password Form
+    // Input component with icon
+    const InputField = ({ icon: Icon, type = "text", ...props }) => (
+        <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <Icon size={18} />
+            </div>
+            <input
+                type={type === "password" && showPassword ? "text" : type}
+                {...props}
+                className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all text-gray-700 placeholder-gray-400"
+            />
+            {type === "password" && (
+                <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+            )}
+        </div>
+    );
+
+    // Forgot Password Form
     if (isForgotPassword) {
         return (
-            <div className="min-h-screen bg-[var(--bg-secondary)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-                <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-[var(--primary)] to-purple-600 bg-clip-text text-transparent">Reset Password</h1>
-                    <p className="text-[var(--text-secondary)] mt-1 text-sm">Recover your account securey</p>
-                </div>
+            <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 flex flex-col justify-center py-8 px-4">
+                <div className="w-full max-w-md mx-auto">
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-200">
+                            <Shield className="w-10 h-10 text-white" />
+                        </div>
+                        <h1 className="text-2xl font-bold text-gray-800">Reset Password</h1>
+                        <p className="text-gray-500 mt-1">Recover your account securely</p>
+                    </div>
 
-                <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                    <div className="card shadow-xl animate-fade-in space-y-6">
+                    {/* Form Card */}
+                    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8">
                         {msg.content && (
-                            <div className={`px-4 py-3 rounded-xl text-sm font-medium ${msg.type === 'error'
-                                ? 'bg-[var(--error-light)] text-[var(--error)]'
-                                : 'bg-green-100 text-green-700'
+                            <div className={`px-4 py-3 rounded-xl text-sm font-medium mb-6 ${msg.type === 'error'
+                                    ? 'bg-red-50 text-red-600 border border-red-100'
+                                    : 'bg-green-50 text-green-600 border border-green-100'
                                 }`}>
                                 {msg.content}
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             {resetStep === 1 ? (
-                                <div className="input-group">
-                                    <label className="input-label">Enter your registered email</label>
-                                    <input
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">Email Address</label>
+                                    <InputField
+                                        icon={Mail}
                                         type="email"
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="input"
                                         placeholder="you@example.com"
                                         required
                                     />
                                 </div>
                             ) : (
                                 <>
-                                    <div className="bg-blue-50 p-4 rounded-lg text-blue-800 text-sm mb-4">
-                                        <strong>Security Question:</strong><br />
+                                    <div className="bg-blue-50 p-4 rounded-xl text-blue-700 text-sm border border-blue-100">
+                                        <strong className="block mb-1">Security Question:</strong>
                                         {fetchedQuestion}
                                     </div>
-                                    <div className="input-group">
-                                        <label className="input-label">Your Answer</label>
-                                        <input
-                                            type="text"
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-700">Your Answer</label>
+                                        <InputField
+                                            icon={Shield}
                                             name="securityAnswer"
                                             value={formData.securityAnswer}
                                             onChange={handleChange}
-                                            className="input"
-                                            placeholder="Answer"
+                                            placeholder="Enter your answer"
                                             required
                                         />
                                     </div>
-                                    <div className="input-group">
-                                        <label className="input-label">New Password</label>
-                                        <input
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-700">New Password</label>
+                                        <InputField
+                                            icon={Lock}
                                             type="password"
                                             name="newPassword"
                                             value={formData.newPassword}
                                             onChange={handleChange}
-                                            className="input"
-                                            placeholder="New Password"
+                                            placeholder="Create new password"
                                             required
                                             minLength={6}
                                         />
@@ -165,103 +192,139 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="btn btn-primary w-full mt-2"
+                                className="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                {isSubmitting ? 'Please wait...' : (resetStep === 1 ? 'Next' : 'Reset Password')}
+                                {isSubmitting ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        {resetStep === 1 ? 'Continue' : 'Reset Password'}
+                                        <ArrowRight size={18} />
+                                    </>
+                                )}
                             </button>
                         </form>
 
-                        <div className="text-center pt-2">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setIsForgotPassword(false);
-                                    setResetStep(1);
-                                    setMsg({ type: '', content: '' });
-                                }}
-                                className="text-[var(--text-secondary)] text-sm hover:text-[var(--primary)]"
-                            >
-                                Back to Login
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsForgotPassword(false);
+                                setResetStep(1);
+                                setMsg({ type: '', content: '' });
+                            }}
+                            className="w-full mt-4 py-3 text-gray-500 font-medium hover:text-orange-500 transition-colors flex items-center justify-center gap-2"
+                        >
+                            <ArrowLeft size={18} />
+                            Back to Login
+                        </button>
                     </div>
                 </div>
             </div>
         );
     }
 
-    // Render Login/Register Form
+    // Login/Register Form
     return (
-        <div className="min-h-screen bg-[var(--bg-secondary)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
-                <div className="w-16 h-16 bg-white/50 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg ring-1 ring-black/5">
-                    <span className="text-3xl">🏠</span>
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 flex flex-col justify-center py-8 px-4">
+            <div className="w-full max-w-md mx-auto">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-orange-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-orange-200 transform hover:scale-105 transition-transform">
+                        <span className="text-5xl">🏠</span>
+                    </div>
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        {isLogin ? 'Welcome Back!' : 'Create Account'}
+                    </h1>
+                    <p className="text-gray-500 mt-2">
+                        {isLogin ? 'Sign in to manage your PG' : 'Start managing your PG today'}
+                    </p>
                 </div>
-                <h1 className="text-3xl font-extrabold bg-gradient-to-r from-[var(--primary)] to-purple-600 bg-clip-text text-transparent">
-                    PG Management
-                </h1>
-                <p className="text-[var(--text-secondary)] mt-2 text-sm">
-                    {isLogin ? 'Welcome back! Please sign in.' : 'Create your account to get started.'}
-                </p>
-            </div>
 
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="card shadow-xl animate-fade-in">
+                {/* Toggle Tabs */}
+                <div className="bg-gray-100 p-1.5 rounded-2xl flex mb-6">
+                    <button
+                        type="button"
+                        onClick={() => setIsLogin(true)}
+                        className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${isLogin
+                                ? 'bg-white text-gray-800 shadow-md'
+                                : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        Sign In
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsLogin(false)}
+                        className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${!isLogin
+                                ? 'bg-white text-gray-800 shadow-md'
+                                : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        Sign Up
+                    </button>
+                </div>
+
+                {/* Form Card */}
+                <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8">
                     {error && (
-                        <div className="bg-[var(--error-light)] text-[var(--error)] px-4 py-3 rounded-xl mb-4 text-sm font-medium">
+                        <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm font-medium border border-red-100">
                             {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         {!isLogin && (
                             <>
-                                <div className="input-group">
-                                    <label className="input-label">PG Name</label>
-                                    <input
-                                        type="text"
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">PG Name</label>
+                                    <InputField
+                                        icon={Building2}
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className="input"
-                                        placeholder="My PG"
+                                        placeholder="My Awesome PG"
                                         required={!isLogin}
                                     />
                                 </div>
-                                <div className="input-group">
-                                    <label className="input-label">Owner Name</label>
-                                    <input
-                                        type="text"
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">Owner Name</label>
+                                    <InputField
+                                        icon={User}
                                         name="ownerName"
                                         value={formData.ownerName}
                                         onChange={handleChange}
-                                        className="input"
                                         placeholder="Your full name"
                                         required={!isLogin}
                                     />
                                 </div>
-                                <div className="input-group">
-                                    <label className="input-label">Phone Number</label>
-                                    <input
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <InputField
+                                        icon={Phone}
                                         type="tel"
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleChange}
-                                        className="input"
                                         placeholder="+91 9876543210"
                                         required={!isLogin}
                                     />
                                 </div>
 
-                                <div className="p-4 bg-gray-50 rounded-xl space-y-4 border border-gray-100">
-                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Security Question (for password recovery)</p>
-                                    <div className="input-group">
-                                        <label className="input-label">Question</label>
+                                {/* Security Section */}
+                                <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl space-y-4 border border-gray-100">
+                                    <div className="flex items-center gap-2">
+                                        <Shield size={16} className="text-orange-500" />
+                                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Security Question
+                                        </span>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-700">Question</label>
                                         <select
                                             name="securityQuestion"
                                             value={formData.securityQuestion}
                                             onChange={handleChange}
-                                            className="input"
+                                            className="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all text-gray-700"
                                             required={!isLogin}
                                         >
                                             {SECURITY_QUESTIONS.map((q, i) => (
@@ -269,14 +332,13 @@ const Login = () => {
                                             ))}
                                         </select>
                                     </div>
-                                    <div className="input-group">
-                                        <label className="input-label">Answer</label>
-                                        <input
-                                            type="text"
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-700">Answer</label>
+                                        <InputField
+                                            icon={Shield}
                                             name="securityAnswer"
                                             value={formData.securityAnswer}
                                             onChange={handleChange}
-                                            className="input"
                                             placeholder="Your answer"
                                             required={!isLogin}
                                         />
@@ -285,27 +347,27 @@ const Login = () => {
                             </>
                         )}
 
-                        <div className="input-group">
-                            <label className="input-label">Email</label>
-                            <input
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Email</label>
+                            <InputField
+                                icon={Mail}
                                 type="email"
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="input"
                                 placeholder="you@example.com"
                                 required
                             />
                         </div>
 
-                        <div className="input-group">
-                            <label className="input-label">Password</label>
-                            <input
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Password</label>
+                            <InputField
+                                icon={Lock}
                                 type="password"
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="input"
                                 placeholder="••••••••"
                                 required
                                 minLength={6}
@@ -317,7 +379,7 @@ const Login = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsForgotPassword(true)}
-                                    className="text-xs text-[var(--primary)] font-medium hover:underline"
+                                    className="text-sm text-orange-500 font-medium hover:text-orange-600 hover:underline transition-colors"
                                 >
                                     Forgot Password?
                                 </button>
@@ -327,32 +389,23 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="btn btn-primary w-full mt-6"
+                            className="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-200 hover:from-orange-600 hover:to-orange-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-6"
                         >
-                            {isSubmitting
-                                ? 'Please wait...'
-                                : isLogin
-                                    ? 'Sign In'
-                                    : 'Create Account'}
+                            {isSubmitting ? (
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <>
+                                    {isLogin ? 'Sign In' : 'Create Account'}
+                                    <ArrowRight size={18} />
+                                </>
+                            )}
                         </button>
                     </form>
-
-                    <div className="text-center mt-6 pt-4 border-t border-[var(--border)]">
-                        <p className="text-[var(--text-secondary)] text-sm">
-                            {isLogin ? "Don't have an account?" : 'Already have an account?'}
-                            <button
-                                type="button"
-                                onClick={() => setIsLogin(!isLogin)}
-                                className="text-[var(--primary)] font-semibold ml-1"
-                            >
-                                {isLogin ? 'Sign Up' : 'Sign In'}
-                            </button>
-                        </p>
-                    </div>
                 </div>
 
-                <p className="text-center text-[var(--text-muted)] text-xs mt-6 mb-4">
-                    Manage your PG with ease
+                {/* Footer */}
+                <p className="text-center text-gray-400 text-sm mt-8">
+                    Manage your PG with ease ✨
                 </p>
             </div>
         </div>
