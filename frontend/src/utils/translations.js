@@ -34,7 +34,7 @@ export const translations = {
         dontHaveAccount: "Don't have an account?",
         alreadyHaveAccount: "Already have an account?",
         pleaseWait: "Please wait...",
-        manageEase: "Manage your PGDesk with ease",
+        manageEase: "The Professional Standard for PG Management",
 
         // Security Questions
         q_pet: "What is the name of your first pet?",
@@ -252,7 +252,7 @@ export const translations = {
         dontHaveAccount: "क्या कोई खाता नहीं है?",
         alreadyHaveAccount: "क्या पहले से ही एक खाता है?",
         pleaseWait: "कृपया प्रतीक्षा करें...",
-        manageEase: "अपने PGDesk को आसानी से प्रबंधित करें",
+        manageEase: "पीजी प्रबंधन के लिए पेशेवर मानक",
 
         // Security Questions
         q_pet: "आपके पहले पालतू जानवर का नाम क्या है?",

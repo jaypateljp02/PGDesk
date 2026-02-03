@@ -41,12 +41,22 @@ const initializeClient = async (userId) => {
 
         const client = new Client({
             authStrategy: new LocalAuth({
-                clientId: userId, // Use userId to create separate session files
+                clientId: userId,
                 dataPath: SESSION_DIR
             }),
             puppeteer: {
                 headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-accelerated-2d-canvas',
+                    '--no-first-run',
+                    '--no-zygote',
+                    '--single-process',
+                    '--disable-gpu'
+                ],
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
             }
         });
 
@@ -54,8 +64,7 @@ const initializeClient = async (userId) => {
 
         client.on('qr', (qr) => {
             state.qr = qr;
-            // qrcode.generate(qr, { small: true }); // Removed direct terminal output for multi-tenancy
-            console.log(`QR Code generated for user ${userId}`);
+            console.log(`[WhatsApp] [QR] Generated for user: ${userId}`);
         });
 
         client.on('ready', () => {

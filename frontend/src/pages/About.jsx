@@ -29,7 +29,7 @@ const About = () => {
                         <img src="/logo.png" alt="PGDesk" className="w-20 h-20 object-contain mx-auto" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-1">PGDesk</h2>
-                    <p className="text-gray-500 mb-4">PG Management Made Easy</p>
+                    <p className="text-gray-500 mb-4 font-medium">The Professional Standard for PG Management</p>
                     <div className="inline-block px-4 py-2 bg-orange-50 text-orange-600 rounded-full text-sm font-semibold">
                         Version 1.0.0
                     </div>

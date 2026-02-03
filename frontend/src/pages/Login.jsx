@@ -410,8 +410,8 @@ const Login = () => {
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-gray-400 text-sm mt-8">
-                    Manage your PG with ease ✨
+                <p className="text-center text-gray-400 text-sm mt-8 font-medium">
+                    The Professional Standard for PG Management ✨
                 </p>
             </div>
         </div>
