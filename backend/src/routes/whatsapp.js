@@ -41,6 +41,9 @@ const initializeClient = async (userId) => {
         state.isInitializing = true;
         state.qr = null; // Reset QR on new init
 
+        // Clear any previous timeouts
+        if (state._readyTimeout) clearTimeout(state._readyTimeout);
+
         console.log(`[WhatsApp] [Init] Initializing for user: ${userId}`);
         console.log(`[WhatsApp] [Init] Puppeteer Cache: ${path.join(process.cwd(), '.cache/puppeteer')}`);
 
@@ -49,10 +52,15 @@ const initializeClient = async (userId) => {
                 clientId: userId,
                 dataPath: SESSION_DIR
             }),
-            authTimeoutMs: 120000,
+            authTimeoutMs: 180000, // 3 minutes for very slow servers
+            qrMaxRetries: 5,
+            takeoverOnConflict: true,
+            takeoverTimeoutMs: 10000,
             puppeteer: {
-                headless: true, // Standard headless for Linux
+                headless: 'new', // Use NEW headless mode for better stability
                 handleSIGINT: false,
+                timeout: 120000,
+                protocolTimeout: 180000,
                 args: [
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
@@ -61,13 +69,13 @@ const initializeClient = async (userId) => {
                     '--no-first-run',
                     '--no-zygote',
                     '--disable-gpu',
-                    '--window-size=1280,720',
+                    '--single-process', // Critical for low memory envs
                     '--disable-extensions',
                     '--disable-default-apps',
                     '--mute-audio',
                     '--no-default-browser-check',
                     '--disable-site-isolation-trials',
-                    '--no-experiments',
+                    '--disable-features=IsolateOrigins,site-per-process',
                     '--ignore-gpu-blacklist',
                     '--ignore-certificate-errors',
                     '--ignore-certificate-errors-spki-list',
@@ -76,7 +84,8 @@ const initializeClient = async (userId) => {
                 ],
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
                 ignoreHTTPSErrors: true
-            }
+            },
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
         });
 
         state.client = client;
@@ -139,28 +148,69 @@ const initializeClient = async (userId) => {
 
         client.on('ready', () => {
             clearInterval(heartbeat);
-            console.log(`WhatsApp client ready for user ${userId}`);
+            if (state._readyTimeout) clearTimeout(state._readyTimeout); // Clear the timeout
+
+            console.log(`[WhatsApp] [Ready] ✅ Client READY for user ${userId}`);
+            console.log(`[WhatsApp] [Ready] Setting isReady=true, isInitializing=false`);
             state.isReady = true;
             state.isInitializing = false;
             state.qr = null;
             state.stage = 'Connected';
             state.lastError = null;
+            console.log(`[WhatsApp] [Ready] State updated:`, { isReady: state.isReady, isInitializing: state.isInitializing, stage: state.stage });
         });
 
         client.on('authenticated', () => {
             lastActivity = Date.now();
-            state.stage = 'Scan Successful! Please wait...';
-            console.log(`WhatsApp authenticated for user ${userId}`);
+            state.stage = 'Scan Successful! Syncing data...';
+            console.log(`[WhatsApp] [Auth] Authenticated successfully for user ${userId}`);
+            console.log(`[WhatsApp] [Auth] Waiting for ready event...`);
+
+            // Set a timeout: if 'ready' doesn't fire within 2 minutes, something is wrong
+            const readyTimeout = setTimeout(() => {
+                if (!state.isReady && state.isInitializing) {
+                    console.error(`[WhatsApp] [Timeout] 'ready' event not received within 2 minutes for user ${userId}`);
+                    state.lastError = 'Connection timed out after authentication. WhatsApp sync took too long. Please click Reset and try again.';
+                    state.stage = 'Sync Timeout - Click Reset';
+                    state.isInitializing = false;
+                    // Try to clean up the client
+                    if (state.client) {
+                        try {
+                            state.client.destroy();
+                        } catch (e) {
+                            console.error(`[WhatsApp] [Timeout] Failed to destroy client:`, e.message);
+                        }
+                    }
+                }
+            }, 120000); // 2 minutes
+
+            // Store timeout so it can be cleared if ready fires
+            state._readyTimeout = readyTimeout;
         });
 
         client.on('auth_failure', (msg) => {
             clearInterval(heartbeat);
-            console.error(`WhatsApp auth failure for user ${userId}:`, msg);
+            console.error(`[WhatsApp] [Auth Failure] User ${userId}:`, msg);
             state.isInitializing = false;
             state.isReady = false;
             state.qr = null;
             state.lastError = `Auth Failure: ${msg}`;
             state.stage = 'Auth Failed';
+        });
+
+        client.on('disconnected', (reason) => {
+            clearInterval(heartbeat);
+            console.log(`[WhatsApp] [Disconnected] User ${userId} - Reason: ${reason}`);
+            state.isReady = false;
+            state.isInitializing = false;
+            state.qr = null;
+            state.stage = `Disconnected: ${reason}`;
+            state.lastError = `Disconnected: ${reason}`;
+        });
+
+        client.on('message', (msg) => {
+            lastActivity = Date.now();
+            console.log(`[WhatsApp] [Message] Received message for user ${userId}`);
         });
 
         state.stage = 'Engine Startup...';
